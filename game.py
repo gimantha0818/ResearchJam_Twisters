@@ -125,20 +125,21 @@ while running:
         # Steps:
         # 1)Starting position
         if event.type == pygame.KEYDOWN:
-            if (initialized == False):
-                if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE:
+                if (initialized == False):
                     print("Start Initialize!")
                     newLimbs = [Limb(limb=LIMBS[0], initial_pos=(1,2)), 
                                 Limb(limb=LIMBS[1], initial_pos=(1,1)),
                                 Limb(limb=LIMBS[2], initial_pos=(0,2)),
                                 Limb(limb=LIMBS[3], initial_pos=(0,1))]
                     initialized = True
-            continue
+            
+            elif(event.key == pygame.K_RETURN):
+                # 2)Randomize new action -> instructions displayed on Screen UI. 
+                new_cmd = create_rand_limb_pos()
+                
         
-        # 2)Randomize new action -> instructions displayed on Screen UI. 
-        if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    new_cmd = create_rand_limb_pos()
+        
         
     if(initialized):
         # GET THE CURRENT MEASUREMNTS
