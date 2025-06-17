@@ -25,6 +25,7 @@
 import pygame
 import sys
 import random
+import numpy as np
 
 LIMBS = ["h_l", "h_r", "f_l", "f_r"]
 LIMBS_TEXT = ["Left Hand", "Right Hand", "Left Foot", "Right Foot"]
@@ -33,12 +34,16 @@ COLORS = ["r", "b", "g"]
 COLORS_TEXT = ["Red", "Blue", "Green"]
 
 PHASES = ["set", "move"]
-
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
+g_list = [(0,0), (0,1),(0,2),(0,3),(0,4),(0,5)]
+b_list = [(1,0), (1,1),(1,2),(1,3),(1,4),(1,5)]
+r_list = [(2,0), (2,1),(2,2),(2,3),(2,4),(2,5)]
+
 ourLimbs = []
-new_cmd = None
+target_limb = None
+target_pos = None
 
 initialized:bool = False    
 
@@ -46,6 +51,24 @@ def create_rand_limb_pos():
     idx_limb = random.randint(0, len(LIMBS)-1)
     idx_color = random.randint(0, len(COLORS)-1)
     return (LIMBS[idx_limb], COLORS[idx_color]) 
+
+bounds_x = np.arange(0,239,80)
+bounds_y = np.arange(0,479,80)
+
+# frame is 480 x 240 
+def get_contact(frame, bounds_x = bounds_x, bounds_y = bounds_y, thresh = 10):
+    frame_bin = frame > thresh
+
+    # get regions of contact within bounds
+    y_contact = np.digitize(np.where(frame_bin)[0], bounds_y)-1
+    x_contact = np.digitize(np.where(frame_bin)[1], bounds_x)-1
+
+    contact_lst = np.unique(np.stack((y_contact,x_contact)),axis = 1)
+
+    # convert to list of tuples
+    contact_lst = [(contact[0].item(),contact[1].item()) for contact in contact_lst.T]
+
+    return contact_lst 
 
 class Limb:
     def __init__(self, limb:str, initial_pos):
@@ -143,26 +166,70 @@ while running:
             
             elif(event.key == pygame.K_RETURN):
                 # 2)Randomize new action -> instructions displayed on Screen UI. 
-                new_cmd = create_rand_limb_pos()
+                (target_limb, target_col) = create_rand_limb_pos()
+                if(target_col == "r"):
+                    target_pos = r_list
+                elif(target_col == "g"):
+                    target_pos = g_list
+                elif(target_col == "b"):
+                    target_pos = b_list
+                
+                for limb in ourLimbs:
+                    limb.phase = "set"
+                    if limb.limb == target_limb:
+                        limb.phase = "move"
                 
         
         
         
-    if(initialized):
+    if(initialized & (target_pos != None)):
         # GET THE CURRENT MEASUREMNTS
         touched_plates = []
+        
         
         # are all limbs were they are supposed to be
         for limb in ourLimbs:
             if (limb.phase == "set"):
                 if(limb.pos in touched_plates):
                     print(f"{limb.limb} is correct")
+                    idx = touched_plates.index(limb.pos)
+                    touched_plates.pop(idx)
                 else:
                     print(f"{limb.limb} - ERROR")
+            
+        if (len(touched_plates) > 1):
+            print(ERROR)
+            
+        elif(len(touched_plates == 1)):
+            if(touched_plates[0] in target_pos)
+        
+            # elif(limb.phase == "move"):
+            #     # see if it touches sth, then compare it to new_cmd
+                
+            #     # is it touching the old one => Fine
+            #     if(limb.pos in touched_plates):
+            #         print(f"{limb.limb} is correct")
                     
-            elif(limb.phase == "move"):
-                # see if it touches sth, then compare it to new_cmd
-                pass
+            #     # is it touch ing the new one => Set new position
+            #     # elif(target_pos in touched_plates):
+            #     #     limb.pos = target_pos
+            #     #     limb.phase = "set"
+            #     #     print(f"Success - {limb.limb} is in target")
+                    
+            #     # elif(touched_plates >= 4):
+            #     #     print(f"ERROR - {limb.limb} went to wrong target")
+                    
+            #     # is there a touched plate which was neither a limb.pos nor target pos
+                
+                
+                
+            #     unique = [t for t in ok_limb_poses+touched_plates if (t not in ok_limb_poses or t not in touched_plates)]
+            #     if len(unique) >= 1:
+            #         print(f"ERROR {unique} was touched")
+                
+                
+        if(len(touched_plates) > 4):
+            print(f"ERROR: TOO many tiles touched")
 
 
     # 4)Limb phase -> contact or no-contact. 10kPa threshold for contact detection. 
