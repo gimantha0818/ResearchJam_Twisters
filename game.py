@@ -57,6 +57,62 @@ pygame.display.set_caption("Basic Pygame Loop")
 # Set up the clock for framerate control
 clock = pygame.time.Clock()
 
+# Spins the wheel and returns a random limb and color
+def create_rand_limb_pos():
+
+    # Randomly select a limb and color
+    idx_limb = random.randint(0, len(LIMBS)-1)
+    idx_color = random.randint(0, len(COLORS)-1)
+    print(f"Selected Limb: {LIMBS[idx_limb]}, Color: {COLORS[idx_color]}")
+
+    # Starting angle for the spinner
+    angle = 15
+
+    # Adjusts angle based on the selected limb and color
+    if LIMBS[idx_limb] == "h_l":
+        angle += 180
+    elif LIMBS[idx_limb] == "f_l":
+        angle += 90
+    elif LIMBS[idx_limb] == "f_r":
+        angle += 270
+
+    if COLORS[idx_color] == "r":
+        angle += 45
+    elif COLORS[idx_color] == "g":
+        angle += 67.5
+
+    # Backs up arrow before spin so that it lands in the right position
+    angle -= 118
+
+    # Load and display an image at the center of the screen
+    spinner_image = pygame.image.load("assets/spinner.jpg")
+    spinner_rect = spinner_image.get_rect(center=(screen_width // 2, screen_height // 2))
+    arrow_image = pygame.image.load("assets/arrow.png")
+
+    # Set counter and initial speed for the spinner
+    count = 200
+    speed = 5
+
+    while count > 0:
+        # Re-draw the arrow
+        rotated_arrow = pygame.transform.rotate(arrow_image, angle)
+        rotated_rect = rotated_arrow.get_rect(center=spinner_rect.center)
+
+        # Draw evreything to secreen
+        screen.fill((0, 0, 0))  # Fill screen with black
+        screen.blit(spinner_image, spinner_rect)  # Draw the arrow on top of the spinner
+        screen.blit(rotated_arrow, rotated_rect)
+        pygame.display.flip()
+
+        # Change the angle and speed
+        angle -= speed
+        speed -= 0.02
+        count -= 1
+        pygame.time.delay(5)
+
+    pygame.time.delay(1000)  # Delay to show the spinner for a second
+    return (LIMBS[idx_limb], COLORS[idx_color]) 
+
 # Main loop
 running = True
 while running:
@@ -121,4 +177,3 @@ while running:
 # Clean up
 pygame.quit()
 sys.exit()
-
