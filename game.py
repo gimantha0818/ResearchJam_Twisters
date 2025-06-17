@@ -28,8 +28,14 @@ import random
 import numpy as np
 
 LIMBS = ["h_l", "h_r", "f_l", "f_r"]
+LIMBS_TEXT = ["Left Hand", "Right Hand", "Left Foot", "Right Foot"]
+
 COLORS = ["r", "b", "g"]
+COLORS_TEXT = ["Red", "Blue", "Green"]
+
 PHASES = ["set", "move"]
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 
 g_list = [(0,0), (0,1),(0,2),(0,3),(0,4),(0,5)]
 b_list = [(1,0), (1,1),(1,2),(1,3),(1,4),(1,5)]
@@ -246,6 +252,38 @@ while running:
 
     # Drawing code goes here
     screen.fill((0, 0, 0))  # Fill screen with black
+
+    # Draws the rectangles to display the tile state
+    if(initialized):
+        for i in range(6):
+            for j in range(3):
+
+                # Draw instructions at the top
+                font = pygame.font.SysFont(None, 36)
+                if new_cmd is not None:
+                    limb_text = LIMBS_TEXT[LIMBS.index(new_cmd[0])]
+                    color_text = COLORS_TEXT[COLORS.index(new_cmd[1])]
+                    text = f"{limb_text} on {color_text}"
+                else:
+                    text = "Press ENTER to spin!"
+
+                text_surface = font.render(text, True, (255, 255, 255))
+                screen.blit(text_surface, (screen_width // 2 - text_surface.get_width() // 2, 50))
+
+                # Draw grid of rectangles
+                rect = pygame.Rect(i * 100 + 110, j * 100 + 200, 80, 80)
+                touched_plates = [(0,0),(0,1),(1,1),(2,3)]
+                # Color the tiles if they are touched or not
+                if (i,j) in touched_plates:
+                    pygame.draw.rect(screen, GREEN, rect)
+                else:
+                    pygame.draw.rect(screen, RED, rect)
+    else:
+        # Display the initial message
+        font = pygame.font.SysFont(None, 36)
+        text_surface = font.render("Press SPACE to initialize!", True, (255, 255, 255))
+        screen.blit(text_surface, (screen_width // 2 - text_surface.get_width() // 2, screen_height // 2 - 20))
+
 
     # Update the display
     pygame.display.flip()
