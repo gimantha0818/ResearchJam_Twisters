@@ -36,7 +36,7 @@ COLORS_TEXT = ["Red", "Blue", "Green"]
 PHASES = ["set", "move"]
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-
+touched_plates = []
 g_list = [(0,0), (0,1),(0,2),(0,3),(0,4),(0,5)]
 b_list = [(1,0), (1,1),(1,2),(1,3),(1,4),(1,5)]
 r_list = [(2,0), (2,1),(2,2),(2,3),(2,4),(2,5)]
@@ -260,9 +260,9 @@ while running:
 
                 # Draw instructions at the top
                 font = pygame.font.SysFont(None, 36)
-                if new_cmd is not None:
-                    limb_text = LIMBS_TEXT[LIMBS.index(new_cmd[0])]
-                    color_text = COLORS_TEXT[COLORS.index(new_cmd[1])]
+                if target_limb is not None:
+                    limb_text = LIMBS_TEXT[LIMBS.index(target_limb)]
+                    color_text = COLORS_TEXT[COLORS.index(target_col)]
                     text = f"{limb_text} on {color_text}"
                 else:
                     text = "Press ENTER to spin!"
@@ -272,7 +272,7 @@ while running:
 
                 # Draw grid of rectangles
                 rect = pygame.Rect(i * 100 + 110, j * 100 + 200, 80, 80)
-                touched_plates = [(0,0),(0,1),(1,1),(2,3)]
+                # touched_plates = [(0,0),(0,1),(1,1),(2,3)]
                 # Color the tiles if they are touched or not
                 if (i,j) in touched_plates:
                     pygame.draw.rect(screen, GREEN, rect)
