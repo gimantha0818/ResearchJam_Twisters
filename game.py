@@ -21,19 +21,6 @@
 # split the two tile array to 3 colours. 720x240 dimensional block. 
 # 1 player only. Get from point A to point B. 
 
-# Steps:
-# 1)Starting position
-
-# 2)Randomize new action -> instructions displayed on Screen UI. 
-
-# 3)Check correctness. 
-
-# 4)Limb phase -> contact or no-contact. 10kPa threshold for contact detection. 
-
-# 5)Allowed to move and not allowed to move and error of action -> Disqualified. 
-
-# 6)End -> Passed!
-
 
 import pygame
 import sys
@@ -41,6 +28,23 @@ import random
 
 LIMBS = ["h_l", "h_r", "f_l", "f_r"]
 COLORS = ["r", "b", "g"]
+PHASES = ["set", "move"]
+
+ourLimbs = []
+new_cmd = None
+
+initialized:bool = False    
+
+def create_rand_limb_pos():
+    idx_limb = random.randint(0, len(LIMBS)-1)
+    idx_color = random.randint(0, len(COLORS)-1)
+    return (LIMBS[idx_limb], COLORS[idx_color]) 
+
+class Limb:
+    def __init__(self, limb:str, initial_pos):
+      self.limb = limb
+      self.pos = initial_pos
+      phase = "set"
 
 # Initialize pygame
 pygame.init()
@@ -60,8 +64,50 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        
+        # Game logic goes here
+        # Steps:
+        # 1)Starting position
+        if event.type == pygame.KEYDOWN:
+            if (initialized == False):
+                if event.key == pygame.K_SPACE:
+                    print("Start Initialize!")
+                    newLimbs = [Limb(limb=LIMBS[0], initial_pos=(1,2)), 
+                                Limb(limb=LIMBS[1], initial_pos=(1,1)),
+                                Limb(limb=LIMBS[2], initial_pos=(0,2)),
+                                Limb(limb=LIMBS[3], initial_pos=(0,1))]
+                    initialized = True
+            continue
+        
+        # 2)Randomize new action -> instructions displayed on Screen UI. 
+        if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    new_cmd = create_rand_limb_pos()
+        
+    if(initialized):
+        # GET THE CURRENT MEASUREMNTS
+        touched_plates = []
+        
+        
+        # are all limbs were they are supposed to be
+        for limb in ourLimbs:
+            if (limb.phase == "set"):
+                if(limb.pos in touched_plates):
+                    print(f"{limb.limb} is correct")
+                else:
+                    print(f"{limb.limb} - ERROR")
+                    
+            elif(limb.phase == "move"):
+                # see if it touches sth, then compare it to new_cmd
+                pass
 
-    # Game logic goes here
+
+    # 4)Limb phase -> contact or no-contact. 10kPa threshold for contact detection. 
+
+    # 5)Allowed to move and not allowed to move and error of action -> Disqualified. 
+
+    # 6)End -> Passed!
+
 
     # Drawing code goes here
     screen.fill((0, 0, 0))  # Fill screen with black
@@ -76,7 +122,3 @@ while running:
 pygame.quit()
 sys.exit()
 
-def create_rand_limb_pos():
-    idx_limb = random.randint(0, len(LIMBS)-1)
-    idx_color = random.randint(0, len(COLORS)-1)
-    return (LIMBS[idx_limb], COLORS[idx_color]) 
