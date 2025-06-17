@@ -152,7 +152,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 if (initialized == False):
                     print("Start Initialize!")
-                    newLimbs = [Limb(limb=LIMBS[0], initial_pos=(1,2)), 
+                    ourLimbs = [Limb(limb=LIMBS[0], initial_pos=(1,2)), 
                                 Limb(limb=LIMBS[1], initial_pos=(1,1)),
                                 Limb(limb=LIMBS[2], initial_pos=(0,2)),
                                 Limb(limb=LIMBS[3], initial_pos=(0,1))]
@@ -178,27 +178,35 @@ while running:
         
     if(initialized & (target_pos != None)):
         # GET THE CURRENT MEASUREMNTS
-        touched_plates = []
-        
-        ok_limb_pos = []
-        for limb in ourLimbs:
-            ok_limb_pos.append()
+        frame = np.zeros((480,240)) # read data here
+        touched_plates = get_contact(frame)
         
         # are all limbs were they are supposed to be
         for limb in ourLimbs:
-            if (limb.phase == "set"):
-                if(limb.pos in touched_plates):
-                    print(f"{limb.limb} is correct")
-                    idx = touched_plates.index(limb.pos)
-                    touched_plates.pop(idx)
-                else:
-                    print(f"{limb.limb} - ERROR")
+            # if (limb.phase == "set"):
+            if(limb.pos in touched_plates):
+                print(f"{limb.limb} is correct")
+                idx = touched_plates.index(limb.pos)
+                touched_plates.pop(idx)
+            else:
+                print(f"{limb.limb} - ERROR")
             
         if (len(touched_plates) > 1):
-            print(ERROR)
+            print('ERROR')
             
-        elif(len(touched_plates == 1)):
-            if(touched_plates[0] in target_pos)
+        elif(len(touched_plates) == 1):
+            if(touched_plates[0] in target_pos):
+                print('success')
+                for limb in ourLimbs:
+                    if limb.limb == target_limb:
+                        limb.pos = touched_plates[0]
+                        limb.phase = "set"
+            else:
+                print("ERROR")
+                
+                
+                
+                
         
             # elif(limb.phase == "move"):
             #     # see if it touches sth, then compare it to new_cmd
