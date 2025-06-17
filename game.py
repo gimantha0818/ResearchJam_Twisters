@@ -25,6 +25,7 @@
 import pygame
 import sys
 import random
+import numpy as np
 
 LIMBS = ["h_l", "h_r", "f_l", "f_r"]
 COLORS = ["r", "b", "g"]
@@ -39,6 +40,24 @@ def create_rand_limb_pos():
     idx_limb = random.randint(0, len(LIMBS)-1)
     idx_color = random.randint(0, len(COLORS)-1)
     return (LIMBS[idx_limb], COLORS[idx_color]) 
+
+bounds_x = np.arange(0,239,80)
+bounds_y = np.arange(0,479,80)
+
+# frame is 480 x 240 
+def get_contact(frame, bounds_x = bounds_x, bounds_y = bounds_y, thresh = 10):
+    frame_bin = frame > thresh
+
+    # get regions of contact within bounds
+    y_contact = np.digitize(np.where(frame_bin)[0], bounds_y)-1
+    x_contact = np.digitize(np.where(frame_bin)[1], bounds_x)-1
+
+    contact_lst = np.unique(np.stack((y_contact,x_contact)),axis = 1)
+
+    # convert to list of tuples
+    contact_lst = [(contact[0].item(),contact[1].item()) for contact in contact_lst.T]
+
+    return contact_lst 
 
 class Limb:
     def __init__(self, limb:str, initial_pos):
@@ -136,7 +155,10 @@ while running:
             
             elif(event.key == pygame.K_RETURN):
                 # 2)Randomize new action -> instructions displayed on Screen UI. 
-                new_cmd = create_rand_limb_pos()
+                (target_limb, target_pos) = create_rand_limb_pos()
+                for limb in ourLimbs:
+                    if limb.limb == target_limb:
+                        limb.phase = "move"
                 
         
         
@@ -153,9 +175,15 @@ while running:
                     print(f"{limb.limb} is correct")
                 else:
                     print(f"{limb.limb} - ERROR")
-                    
+            
+            
             elif(limb.phase == "move"):
                 # see if it touches sth, then compare it to new_cmd
+                
+                # is it touching the old one => Fine
+                
+                # is it touch ing the new one => Set new position
+                
                 pass
 
 
