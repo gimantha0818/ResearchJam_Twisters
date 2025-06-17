@@ -31,8 +31,13 @@ LIMBS = ["h_l", "h_r", "f_l", "f_r"]
 COLORS = ["r", "b", "g"]
 PHASES = ["set", "move"]
 
+g_list = [(0,0), (0,1),(0,2),(0,3),(0,4),(0,5)]
+b_list = [(1,0), (1,1),(1,2),(1,3),(1,4),(1,5)]
+r_list = [(2,0), (2,1),(2,2),(2,3),(2,4),(2,5)]
+
 ourLimbs = []
-new_cmd = None
+target_limb = None
+target_pos = None
 
 initialized:bool = False    
 
@@ -155,36 +160,73 @@ while running:
             
             elif(event.key == pygame.K_RETURN):
                 # 2)Randomize new action -> instructions displayed on Screen UI. 
-                (target_limb, target_pos) = create_rand_limb_pos()
+                (target_limb, target_col) = create_rand_limb_pos()
+                if(target_col == "r"):
+                    target_pos = r_list
+                elif(target_col == "g"):
+                    target_pos = g_list
+                elif(target_col == "b"):
+                    target_pos = b_list
+                
                 for limb in ourLimbs:
+                    limb.phase = "set"
                     if limb.limb == target_limb:
                         limb.phase = "move"
                 
         
         
         
-    if(initialized):
+    if(initialized & (target_pos != None)):
         # GET THE CURRENT MEASUREMNTS
         touched_plates = []
         
+        ok_limb_pos = []
+        for limb in ourLimbs:
+            ok_limb_pos.append()
         
         # are all limbs were they are supposed to be
         for limb in ourLimbs:
             if (limb.phase == "set"):
                 if(limb.pos in touched_plates):
                     print(f"{limb.limb} is correct")
+                    idx = touched_plates.index(limb.pos)
+                    touched_plates.pop(idx)
                 else:
                     print(f"{limb.limb} - ERROR")
             
+        if (len(touched_plates) > 1):
+            print(ERROR)
             
-            elif(limb.phase == "move"):
-                # see if it touches sth, then compare it to new_cmd
+        elif(len(touched_plates == 1)):
+            if(touched_plates[0] in target_pos)
+        
+            # elif(limb.phase == "move"):
+            #     # see if it touches sth, then compare it to new_cmd
                 
-                # is it touching the old one => Fine
+            #     # is it touching the old one => Fine
+            #     if(limb.pos in touched_plates):
+            #         print(f"{limb.limb} is correct")
+                    
+            #     # is it touch ing the new one => Set new position
+            #     # elif(target_pos in touched_plates):
+            #     #     limb.pos = target_pos
+            #     #     limb.phase = "set"
+            #     #     print(f"Success - {limb.limb} is in target")
+                    
+            #     # elif(touched_plates >= 4):
+            #     #     print(f"ERROR - {limb.limb} went to wrong target")
+                    
+            #     # is there a touched plate which was neither a limb.pos nor target pos
                 
-                # is it touch ing the new one => Set new position
                 
-                pass
+                
+            #     unique = [t for t in ok_limb_poses+touched_plates if (t not in ok_limb_poses or t not in touched_plates)]
+            #     if len(unique) >= 1:
+            #         print(f"ERROR {unique} was touched")
+                
+                
+        if(len(touched_plates) > 4):
+            print(f"ERROR: TOO many tiles touched")
 
 
     # 4)Limb phase -> contact or no-contact. 10kPa threshold for contact detection. 
